@@ -39,13 +39,18 @@ class RedditAPI {
     createPost(post) {
         return this.conn.query(
             `
-            INSERT INTO posts (userId, title, url, createdAt, updatedAt)
-            VALUES (?, ?, ?, NOW(), NOW())`,
-            [post.userId, post.title, post.url]
+            INSERT INTO posts (userId, title, url, subredditId, createdAt, updatedAt)
+            VALUES (?, ?, ?, ?, NOW(), NOW())`,
+            [post.userId, post.title, post.url, post.subredditId]
         )
             .then(result => {
                 return result.insertId;
-            });
+            })
+            .catch(error => {
+                throw error;
+            }
+            
+            );
     }
    
   createSubreddit(subreddit) {
@@ -128,13 +133,12 @@ class RedditAPI {
       return this.conn.query(
       `SELECT subId, name, description, subCreatedAt, subUpdatedAt 
       FROM subreddits
-      ORDER BY subCreatedAt DESC 
-      LIMIT 25;` 
+      ORDER BY subCreatedAt DESC;` 
         )  
       .then(function(queryResponse) {
             return queryResponse.map(function(subreddits) {
             // return {
-                      //      "id": subreddits.subId,
+                      //"id": subreddits.subId,
                     // "name": subreddits.name,
                     // "description": subreddits.description,
                     // "createdAt": subreddits.subCreatedAt,
