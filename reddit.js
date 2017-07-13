@@ -55,21 +55,14 @@ class RedditAPI {
          */
           
         return this.conn.query(
-        //   `SELECT posts.id, posts.title, posts.url, posts.userId, posts.createdAt, posts.updatedAt, posts.userId, posts.username, users.userCreatedAt, users.userUpdatedAt FROM posts JOIN users ON posts.userId = users.id ORDER BY posts.createdAt DESC LIMIT 25;
-
-          
-            `
-            SELECT *
-            FROM posts 
-            JOIN users 
-            ON posts.userId = users.id 
-            ORDER BY posts.createdAt DESC 
-            LIMIT 25;`
-            //  `
-            // SELECT id, title, url, userId, createdAt, updatedAt
-            // FROM posts
-            // ORDER BY createdAt DESC
-            // LIMIT 25`
+       `SELECT posts.postId, posts.title, posts.url, posts.userId, posts.createdAt, 
+       posts.updatedAt, users.id, users.username, users.userCreatedAt, 
+       users.userUpdatedAt 
+       FROM posts 
+       LEFT JOIN users 
+       ON posts.userId = users.id 
+       ORDER BY posts.createdAt DESC 
+       LIMIT 25;` 
         )  
        .then(function(queryResponse) {
             return queryResponse.map(function(posts) {
