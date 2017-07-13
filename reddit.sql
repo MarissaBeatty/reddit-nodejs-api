@@ -16,13 +16,19 @@ CREATE TABLE posts (
   title VARCHAR(300) DEFAULT NULL,
   url VARCHAR(2000) DEFAULT NULL,
   userId INT DEFAULT NULL,
-  createdAt DATETIME NOT NULL,
-  updatedAt DATETIME NOT NULL,
+  postCreatedAt DATETIME NOT NULL,
+  postUpdatedAt DATETIME NOT NULL,
   KEY userId (userId), -- why did we add this here? ask me :)
   CONSTRAINT validUser FOREIGN KEY (userId) REFERENCES users (id) ON DELETE SET NULL
 );
 
---create the subreddits table 
+ALTER TABLE posts ADD (
+subredditId INT, 
+KEY subredditId (subredditId), 
+CONSTRAINT validSubreddit FOREIGN KEY (subredditId) REFERENCES subreddits (subId) ON DELETE SET NULL
+);
+
+-- create the subreddits table 
 CREATE TABLE subreddits (
   subId INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(30) NOT NULL,
