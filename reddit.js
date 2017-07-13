@@ -15,7 +15,12 @@ class RedditAPI {
          */
         return bcrypt.hash(user.password, HASH_ROUNDS)
             .then(hashedPassword => {
-                return this.conn.query('INSERT INTO users (username, password, userCreatedAt, userUpdatedAt) VALUES (?, ?, NOW(), NOW())', [user.username, hashedPassword]);
+                return this.conn.query(
+                    `
+                    INSERT INTO users (username, password, userCreatedAt, userUpdatedAt) 
+                    VALUES (?, ?, NOW(), NOW())`,
+                    [user.username, hashedPassword]
+                );
             })
             .then(result => {
                 return result.insertId;
@@ -40,6 +45,27 @@ class RedditAPI {
         )
             .then(result => {
                 return result.insertId;
+            });
+    }
+   
+  createSubreddit(subreddit) {
+            return this.conn.query(
+                `
+                INSERT INTO subreddits (name, description, subCreatedAt, subUpdatedAt) 
+                VALUES (?, ?, NOW(), NOW())`,
+                [subreddit.name, subreddit.description]
+            )
+            .then(result => {
+                return result.insertId;
+            })
+            .catch(error => {
+                // Special error handling for duplicate entry
+                if (error.code === 'ER_DUP_ENTRY') {
+                    throw new Error('A subreddit with this name already exists');
+                }
+                else {
+                    throw error;
+                }
             });
     }
    
