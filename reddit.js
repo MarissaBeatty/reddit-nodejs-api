@@ -35,14 +35,14 @@ class RedditAPI {
         return this.conn.query(
             `
             INSERT INTO posts (userId, title, url, createdAt, updatedAt)
-            VALUES (?, ?, ?, NOW(). NOW())`,
+            VALUES (?, ?, ?, NOW(), NOW())`,
             [post.userId, post.title, post.url]
         )
             .then(result => {
                 return result.insertId;
             });
     }
-
+   
     getAllPosts() {
         /*
         strings delimited with ` are an ES2015 feature called "template strings".
@@ -53,14 +53,17 @@ class RedditAPI {
         therefore template strings make it very easy to write SQL queries that span multiple
         lines without having to manually split the string line by line.
          */
+          console.log(this.conn.query());
         return this.conn.query(
-            `
-            SELECT id, title, url, userId, createdAt, updatedAt
-            FROM posts
-            ORDER BY createdAt DESC
-            LIMIT 25`
-        );
-    }
-}
+            `SELECT posts.id, posts.title, posts.url, posts.userId, posts.createdAt, posts.updatedAt, 
+            users.id, users.username, users.createdAt, users.updatedAt 
+            FROM posts 
+            JOIN users 
+            ON posts.userId = users.id 
+            ORDER BY posts.createdAt DESC 
+            LIMIT 25;`
+        ); 
+    } 
+} 
 
 module.exports = RedditAPI;
