@@ -16,8 +16,8 @@ CREATE TABLE posts (
   title VARCHAR(300) DEFAULT NULL,
   url VARCHAR(2000) DEFAULT NULL,
   userId INT DEFAULT NULL,
-  createdAt DATETIME NOT NULL,
-  updatedAt DATETIME NOT NULL,
+  userCreatedAt DATETIME NOT NULL,
+  userUpdatedAt DATETIME NOT NULL,
   KEY userId (userId), -- why did we add this here? ask me :)
   CONSTRAINT validUser FOREIGN KEY (userId) REFERENCES users (id) ON DELETE SET NULL
 );

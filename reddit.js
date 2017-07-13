@@ -15,7 +15,7 @@ class RedditAPI {
          */
         return bcrypt.hash(user.password, HASH_ROUNDS)
             .then(hashedPassword => {
-                return this.conn.query('INSERT INTO users (username,password, createdAt, updatedAt) VALUES (?, ?, NOW(), NOW())', [user.username, hashedPassword]);
+                return this.conn.query('INSERT INTO users (username, password, userCreatedAt, userUpdatedAt) VALUES (?, ?, NOW(), NOW())', [user.username, hashedPassword]);
             })
             .then(result => {
                 return result.insertId;
@@ -53,16 +53,55 @@ class RedditAPI {
         therefore template strings make it very easy to write SQL queries that span multiple
         lines without having to manually split the string line by line.
          */
-          console.log(this.conn.query());
+          
         return this.conn.query(
-            `SELECT posts.id, posts.title, posts.url, posts.userId, posts.createdAt, posts.updatedAt, 
-            users.id, users.username, users.createdAt, users.updatedAt 
+        //   `SELECT posts.id, posts.title, posts.url, posts.userId, posts.createdAt, posts.updatedAt, posts.userId, posts.username, users.userCreatedAt, users.userUpdatedAt FROM posts JOIN users ON posts.userId = users.id ORDER BY posts.createdAt DESC LIMIT 25;
+
+          
+            `
+            SELECT *
             FROM posts 
             JOIN users 
             ON posts.userId = users.id 
             ORDER BY posts.createdAt DESC 
             LIMIT 25;`
-        ); 
+            //  `
+            // SELECT id, title, url, userId, createdAt, updatedAt
+            // FROM posts
+            // ORDER BY createdAt DESC
+            // LIMIT 25`
+        )  
+       .then(function(queryResponse) {
+            return queryResponse.map(function(posts) {
+            // return {
+            //         "id": posts.postId,
+            //         "title": posts.title,
+            //         "url": posts.url,
+            //         "createdAt": posts.createdAt,
+            //         "updatedAt": posts.updatedAt,
+            //             "user": {
+            //                     "id": posts.users.id,
+            //                     "username": posts.users.username,
+            //                     "createdAt": posts.users.createdAt,
+            //                     "updatedAt": posts.users.updatedAt
+            //                     }
+            //         }
+                    console.log({
+                    "id": posts.postId,
+                    "title": posts.title,
+                    "url": posts.url,
+                    "createdAt": posts.createdAt,
+                    "updatedAt": posts.updatedAt,
+                        "user": {
+                                "id": posts.userId,
+                                "username": posts.username,
+                                "createdAt": posts.userCreatedAt,
+                                "updatedAt": posts.userUpdatedAt
+                                }
+                    });
+            });
+      
+        });
     } 
 } 
 
