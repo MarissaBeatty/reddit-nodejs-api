@@ -56,9 +56,9 @@ class RedditAPI {
   createSubreddit(subreddit) {
             return this.conn.query(
                 `
-                INSERT INTO subreddits (name, description, subCreatedAt, subUpdatedAt) 
-                VALUES (?, ?, NOW(), NOW())`,
-                [subreddit.name, subreddit.description]
+                INSERT INTO subreddits (name, description, subId, subCreatedAt, subUpdatedAt) 
+                VALUES (?, ?, ?, NOW(), NOW())`,
+                [subreddit.name, subreddit.description, subreddit.subId]
             )
             .then(result => {
                 return result.insertId;
@@ -86,12 +86,12 @@ class RedditAPI {
          */
           
         return this.conn.query(
-       `SELECT posts.postId, posts.title, posts.url, posts.userId, posts.createdAt, 
-       posts.updatedAt, users.id, users.username, users.userCreatedAt, 
-       users.userUpdatedAt 
+       `SELECT posts.postId, posts.title, posts.url, posts.userId, posts.createdAt, posts.updatedAt, posts.subredditId,
+       users.id, users.username, users.userCreatedAt, users.userUpdatedAt, 
+       subreddits.subId, subreddits.name, subreddits.description, subreddits.subCreatedAt, subreddits.subUpdatedAt 
        FROM posts 
-       LEFT JOIN users 
-       ON posts.userId = users.id 
+       JOIN users ON posts.userId = users.id 
+       LEFT JOIN subreddits ON posts.subredditId = subreddits.subId 
        ORDER BY posts.createdAt DESC 
        LIMIT 25;` 
         )  
@@ -121,7 +121,14 @@ class RedditAPI {
                                 "username": posts.username,
                                 "createdAt": posts.userCreatedAt,
                                 "updatedAt": posts.userUpdatedAt
-                                }
+                                },
+                        "subreddit": {
+                                "subredditId": posts.subId, 
+                                "name": posts.name, 
+                                "description": posts.description, 
+                                "createdAt": posts.subCreatedAt, 
+                                "updatedAt": posts.subUpdatedAt
+                        }        
                     });
             });
       

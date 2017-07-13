@@ -25,7 +25,7 @@ CREATE TABLE posts (
 ALTER TABLE posts ADD (
 subredditId INT, 
 KEY subredditId (subredditId), 
-CONSTRAINT validSubreddit FOREIGN KEY (subredditId) REFERENCES subreddits (subId) ON DELETE SET NULL
+CONSTRAINT valid FOREIGN KEY (subredditId) REFERENCES subreddits (subId) ON DELETE SET NULL
 );
 
 -- create the subreddits table 
