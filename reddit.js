@@ -86,14 +86,16 @@ class RedditAPI {
          */
           
         return this.conn.query(
-       `SELECT posts.postId, posts.title, posts.url, posts.userId, posts.createdAt, posts.updatedAt, posts.subredditId,
+       `SELECT posts.postId, posts.title, posts.url, posts.userId, posts.createdAt, posts.updatedAt, posts.subredditId, 
        users.id, users.username, users.userCreatedAt, users.userUpdatedAt, 
-       subreddits.subId, subreddits.name, subreddits.description, subreddits.subCreatedAt, subreddits.subUpdatedAt 
+       subreddits.subId, subreddits.name, subreddits.description, subreddits.subCreatedAt, subreddits.subUpdatedAt, 
+       SUM(votes.voteDirection) 
        FROM posts 
        JOIN users ON posts.userId = users.id 
        LEFT JOIN subreddits ON posts.subredditId = subreddits.subId 
-       ORDER BY posts.createdAt DESC 
-       LIMIT 25;` 
+       LEFT JOIN votes ON votes.postId = posts.postId 
+       ORDER BY SUM(votes.voteDirection) DESC 
+       LIMIT 25;`
         )  
        .then(function(queryResponse) {
             return queryResponse.map(function(posts) {
@@ -103,6 +105,7 @@ class RedditAPI {
             //         "url": posts.url,
             //         "createdAt": posts.createdAt,
             //         "updatedAt": posts.updatedAt,
+                    //   "voteScore": SUM(votes.voteDirection),
             //             "user": {
             //                     "id": posts.users.id,
             //                     "username": posts.users.username,
@@ -123,6 +126,7 @@ class RedditAPI {
                     "url": posts.url,
                     "createdAt": posts.createdAt,
                     "updatedAt": posts.updatedAt,
+                    "voteScore": SUM(votes.voteDirection),
                         "user": {
                                 "id": posts.userId,
                                 "username": posts.username,
