@@ -109,6 +109,13 @@ class RedditAPI {
             //                     "createdAt": posts.users.createdAt,
             //                     "updatedAt": posts.users.updatedAt
             //                     }
+            //              "subreddit": {
+            //                     "subredditId": posts.subId, 
+            //                     "name": posts.name, 
+            //                     "description": posts.description, 
+            //                     "createdAt": posts.subCreatedAt, 
+            //                     "updatedAt": posts.subUpdatedAt
+            //             }  
             //         }
                     console.log({
                     "id": posts.postId,
@@ -162,6 +169,19 @@ class RedditAPI {
       
         });
     } 
+    
+    createVote(vote) {
+        return this.conn.query(
+            `INSERT INTO votes 
+            SET postId=?, userId=?, voteDirection=? 
+            ON DUPLICATE KEY UPDATE voteDirection=?;`
+            ) 
+        .then (function(queryResponse) {
+            if (vote.voteDirection > 1 || vote.voteDirection < - 1) {
+                throw new Error('invalid vote');
+            }
+        });    
+    }
 } 
 
 module.exports = RedditAPI;
