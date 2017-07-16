@@ -12,7 +12,7 @@ function getSubreddits() {
             return result.data.children.map(function(subredditObject) {
                 console.log(subredditObject.data.subreddit);
                 //return newObject.data.subreddit;
-            })
+            });
         });
 }
 
@@ -37,7 +37,7 @@ function getPostsForSubreddit(subredditName) {
                         "user": subreddit.data.author
                         };
                         
-                    }) 
+                    }); 
                     
             }
         );
@@ -76,7 +76,7 @@ function crawl() {
      */
 
     // Get a list of subreddits
-    crawl();
+   crawl();
     getSubreddits()
         .then(subredditNames => {
             subredditNames.forEach(subredditName => {
@@ -84,7 +84,7 @@ function crawl() {
                 myReddit.createSubreddit({name: subredditName})
                     .then(subredditId => {
                         subId = subredditId;
-                        return getPostsForSubreddit(subredditName)
+                        return getPostsForSubreddit(subredditName);
                     })
                     .then(posts => {
                         posts.forEach(post => {
@@ -97,9 +97,9 @@ function crawl() {
                                     username: post.user,
                                     password: 'abc123'
                             })
-                            .catch(function(err) {
-                                    return users[post.user];
-                                })
+                            .catch(function(error) {
+                                return users[post.user];
+                                });
                             }
 
                             userIdPromise.then(userId => {
@@ -119,3 +119,4 @@ function crawl() {
         getSubreddits();
 }
 
+ 

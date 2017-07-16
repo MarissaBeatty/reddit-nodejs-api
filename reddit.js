@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 var bcrypt = require('bcrypt-as-promised');
 var HASH_ROUNDS = 10;
@@ -25,7 +25,7 @@ class RedditAPI {
             .catch(error => {
                 // Special error handling for duplicate entry
                 if (error.code === 'ER_DUP_ENTRY') {
-                    throw new Error('A user with this username already exists');
+                    throw new Error('Hey! Someone else already has that username.');
                 }
                 else {
                     throw error;
@@ -60,7 +60,7 @@ class RedditAPI {
             .catch(error => {
                 // Special error handling for duplicate entry
                 if (error.code === 'ER_DUP_ENTRY') {
-                    throw new Error('A subreddit with this name already exists.');
+                    throw new Error('Oops! A subreddit with this name already exists.');
                 }
                 else {
                     throw error;
@@ -125,13 +125,20 @@ class RedditAPI {
         )
         .then(function(queryResponse) {
             return queryResponse.map(function(subreddits) {
-                return {
+                console.log({
                     "id": subreddits.subId,
                     "name": subreddits.name,
                     "description": subreddits.description,
                     "createdAt": subreddits.posts.createdAt,
                     "updatedAt": subreddits.posts.updatedAt
-                };
+                });
+                // return {
+                //     "id": subreddits.subId,
+                //     "name": subreddits.name,
+                //     "description": subreddits.description,
+                //     "createdAt": subreddits.posts.createdAt,
+                //     "updatedAt": subreddits.posts.updatedAt
+                // };
             });
         });
     }
@@ -141,10 +148,10 @@ class RedditAPI {
         `INSERT INTO votes SET postId=?, userId=?, voteDirection=? ON DUPLICATE KEY UPDATE voteDirection=?;`
             )
         .then(function(queryResponse) {
-            if (vote.voteDirection !== 1 && vote.voteDirection !== 0 && vote.voteDirection !== -1) {
-            throw new Error('Please vote again, invalid input');
+            if (vote.voteDirection >= 1 || vote.voteDirection <= -1) {
+            throw new Error('OOPs. Please vote again.');
         }
-        })
+        });
         
         
     }
