@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 var bcrypt = require('bcrypt-as-promised');
 var HASH_ROUNDS = 10;
@@ -25,7 +25,7 @@ class RedditAPI {
             .catch(error => {
                 // Special error handling for duplicate entry
                 if (error.code === 'ER_DUP_ENTRY') {
-                    throw new Error('Hey! Someone else already has that username.');
+                    throw new Error('A user with this username already exists');
                 }
                 else {
                     throw error;
@@ -36,8 +36,8 @@ class RedditAPI {
     createPost(post) {
         return this.conn.query(
             `
-            INSERT INTO posts (userId, title, url, createdAt, updatedAt, subredditId)
-            VALUES (?, ?, ?, NOW(), NOW(), ?)`,
+            INSERT INTO posts (userId, title, url, subredditId, createdAt, updatedAt)
+            VALUES (?, ?, ?, ?, NOW(), NOW())`,
             [post.userId, post.title, post.url, post.subredditId]
         )
             .then(result => {
@@ -49,6 +49,7 @@ class RedditAPI {
     }
     
       createSubreddit(subreddit) {
+          console.log(subreddit, "the subreddits")
             return this.conn.query(`
             
             INSERT INTO subreddits (name,description,subCreatedAt,subUpdatedAt) 
@@ -60,7 +61,7 @@ class RedditAPI {
             .catch(error => {
                 // Special error handling for duplicate entry
                 if (error.code === 'ER_DUP_ENTRY') {
-                    throw new Error('Oops! A subreddit with this name already exists.');
+                    throw new Error('A subreddit with this name already exists.');
                 }
                 else {
                     throw error;
@@ -74,7 +75,6 @@ class RedditAPI {
         they are more powerful than what we are using them for here. one feature of
         template strings is that you can write them on multiple lines. if you try to
         skip a line in a single- or double-quoted string, you would get a syntax error.
-
         therefore template strings make it very easy to write SQL queries that span multiple
         lines without having to manually split the string line by line.
          */
@@ -85,8 +85,9 @@ class RedditAPI {
             subreddits.subId, subreddits.name, subreddits.description, subreddits.subCreatedAt, subreddits.subUpdatedAt, SUM(votes.voteDirection)
             FROM posts
             JOIN users ON posts.userId = users.id
-            LEFT JOIN subreddits ON posts.subredditId = subreddits.subId
+            JOIN subreddits ON posts.subredditId = subreddits.subId
             LEFT JOIN votes ON votes.postId = posts.postId
+            GROUP BY postId
             ORDER BY SUM(votes.voteDirection) DESC
             LIMIT 25`
         )
@@ -125,20 +126,13 @@ class RedditAPI {
         )
         .then(function(queryResponse) {
             return queryResponse.map(function(subreddits) {
-                console.log({
+                return {
                     "id": subreddits.subId,
                     "name": subreddits.name,
                     "description": subreddits.description,
-                    "createdAt": subreddits.posts.createdAt,
-                    "updatedAt": subreddits.posts.updatedAt
-                });
-                // return {
-                //     "id": subreddits.subId,
-                //     "name": subreddits.name,
-                //     "description": subreddits.description,
-                //     "createdAt": subreddits.posts.createdAt,
-                //     "updatedAt": subreddits.posts.updatedAt
-                // };
+                    "createdAt": subreddits.subCreatedAt,
+                    "updatedAt": subreddits.subUpdatedAt
+                };
             });
         });
     }
@@ -148,8 +142,8 @@ class RedditAPI {
         `INSERT INTO votes SET postId=?, userId=?, voteDirection=? ON DUPLICATE KEY UPDATE voteDirection=?;`
             )
         .then(function(queryResponse) {
-            if (vote.voteDirection >= 1 || vote.voteDirection <= -1) {
-            throw new Error('OOPs. Please vote again.');
+            if (vote.voteDirection !== 1 && vote.voteDirection !== 0 && vote.voteDirection !== -1) {
+            throw new Error('Please vote again, invalid input');
         }
         });
         

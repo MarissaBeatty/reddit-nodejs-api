@@ -1,5 +1,6 @@
 var express = require('express');
 var app = express();
+var bodyParser = require('body-parser');
 
 var mysql = require('promise-mysql');
 // create a connection to our Cloud9 server
@@ -26,7 +27,7 @@ app.get('/', function (req, res) {
 app.get('/hello', function (req, res) {
   var name = req.query.name;
   if (name) {
-    res.send('<h1>Hello ' + name + '! </h1>')
+    res.send('<h1>Hello ' + name + '! </h1>');
   }
   else{
   res.send('<h1>Hello World!</h1>');
@@ -53,15 +54,16 @@ app.get('/calculator/:operation', function (req, res) {
   } 
   
   if(operation === "add") {
-    solution = (num1) + (num2);
+    solution = num1 + num2;
   } 
   
   if(operation === "multiply") {
-    solution = (num1) * (num2);
+    solution = num1 * num2;
   } 
   
   if(operation !== "add" && operation !== "multiply") {
-    res.status(400).send("Bad Request");
+    res.status(400).json({error: "Bad Request"}); //be consistent: end is sent as JSON, so send the error as JSON
+    return; // this is important, so you stop running the code and don't execute everything below it . 
     } 
     
   res.send(JSON.stringify(
@@ -77,44 +79,41 @@ app.get('/calculator/:operation', function (req, res) {
 
 //exercise 4
 
-app.get('/posts', function (req, res) {
+app.get('/posts', (req, res) => {
   //call getAllPosts, then start the list, then do a forEach where you 
   //display each li, then close the ul. 
 
 var myReddit = new RedditAPI(connection);  
 
-myReddit.getAllPosts();
-
-  res.send( 
-  `<!DOCTYPE html>
-    <body>
+myReddit.getAllPosts()
+.then (posts => {
+  // res.json(posts)
+  var postList = 
+  `
       <div id="posts">
           <h1>List of posts</h1>
-          <ul class="posts-list">`
-          )
-  .then(function(posts) {
-      posts.forEach(function(post) {
-    res.send(    
-    `<li class="post-item">
-      <h2 class="post-item__title">
-        <a href=` + `" `+ post.url + `"` + `>` + post.title + `</a>
-      </h2>
-      <p>Created by`+ post.username + `</p>
-     </li>`);
-     
-  });
-  })
-  .then (function(res) 
-  {
-  res.send(
-    ` </ul>
-      </div>
-     </body>
-     </html>`
-      )});
+          <ul class="posts-list">`;
+          
+posts.forEach(post => {
+    postList += 
+    `<li>
+      <h2>${post.title}</h2>
       
-      res.send();
-});
+     </li>
+    `;
+    });
+  
+      postList += 
+    ` </ul>
+    </div>
+    `;
+    res.send(postList);
+    
+  })
+  .catch(err => {
+    res.status(500).send(err.stack);
+  })
+})
 
 //exercise 5
 app.get('/new-post', function (req, res) {
@@ -131,6 +130,23 @@ app.get('/new-post', function (req, res) {
   );
 });
 
+//exercise 6
+// app.use('body-parser') {
+  
+// }
+
+// app.post('/createPost', function (req, res) {
+//The form will instruct the browser to make a POST request 
+//(because of the POST method), 
+//and the resource will be /createPost 
+//because of the action parameter.
+
+
+
+  
+  
+//   res.send('Hello World');
+// });
 
 
 
