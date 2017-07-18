@@ -1,6 +1,7 @@
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
+var pug = require('pug');
 
 var mysql = require('promise-mysql');
 // create a connection to our Cloud9 server
@@ -81,55 +82,80 @@ app.get('/calculator/:operation', function (req, res) {
 
 //exercise 4
 
-app.get('/posts', (req, res) => {
-  //call getAllPosts, then start the list, then do a forEach where you 
-  //display each li, then close the ul. 
+// app.get('/posts', (req, res) => {
+//   //call getAllPosts, then start the list, then do a forEach where you 
+//   //display each li, then close the ul. 
 
-// var myReddit = new RedditAPI(connection);  
+// // var myReddit = new RedditAPI(connection);  
+
+// myReddit.getAllPosts()
+// .then (posts => {
+//   // res.json(posts)
+//   var postList = 
+//   `
+//       <div id="posts">
+//           <h1>List of posts</h1>
+//           <ul class="posts-list">`;
+          
+// posts.forEach(post => {
+//     postList += 
+//     `<li>
+//       <h2>${post.title}</h2>
+      
+//     </li>
+//     `;
+//     });
+  
+//       postList += 
+//     ` </ul>
+//     </div>
+//     `;
+//     res.send(postList);
+    
+//   })
+//   .catch(err => {
+//     res.status(500).send(err.stack);
+//   })
+// })
+
+// ex 4 refactored with pug
+app.get('/posts', (req, res) => {
 
 myReddit.getAllPosts()
 .then (posts => {
-  // res.json(posts)
-  var postList = 
-  `
-      <div id="posts">
-          <h1>List of posts</h1>
-          <ul class="posts-list">`;
-          
-posts.forEach(post => {
-    postList += 
-    `<li>
-      <h2>${post.title}</h2>
-      
-     </li>
-    `;
-    });
-  
-      postList += 
-    ` </ul>
-    </div>
-    `;
-    res.send(postList);
-    
-  })
-  .catch(err => {
+  res.render('post-list', {posts:posts})
+ .catch(err => {
     res.status(500).send(err.stack);
   })
 })
+});
+// 3. In your views directory, create a file called `post-list.pug` 
+// and try to recreate the same output as you did with HTML. 
+// You will have access to a variable called `posts`, that will have 
+// been transmitted by the call to `render`. 
+// You will need to use the `each` functionality of Pug to do this.
+
+
 
 //exercise 5
-app.get('/new-post', function (req, res) {
-  res.send(`
-  <form action="/createPost" method="POST"><!-- why does it say method="POST" ?? -->
-  <p>
-    <input type="text" name="url" placeholder="Enter a URL to content">
-  </p>
-  <p>
-    <input type="text" name="title" placeholder="Enter the title of your content">
-  </p>
-  <button type="submit">Create!</button>
-</form>`
-  );
+// old code 
+// app.get('/new-post', function (req, res) {
+//   res.send(`
+//   <form action="/createPost" method="POST"><!-- why does it say method="POST" ?? -->
+//   <p>
+//     <input type="text" name="url" placeholder="Enter a URL to content">
+//   </p>
+//   <p>
+//     <input type="text" name="title" placeholder="Enter the title of your content">
+//   </p>
+//   <button type="submit">Create!</button>
+// </form>`
+//   );
+// });
+
+//refractored with pug
+app.get('/createContent', function (req, res) {
+  res.render('create-content');
 });
 
 //exercise 6
@@ -156,8 +182,11 @@ app.post('/createPost', urlencodedParser, function (req, res) {
        .catch(error => {
          console.log("Oops. Something went wrong.");
          throw error
-        });
- });
+        })
+});
+ 
+//exercise 7
+app.set('view engine', 'pug');
 
 
 /* YOU DON'T HAVE TO CHANGE ANYTHING BELOW THIS LINE :) */
