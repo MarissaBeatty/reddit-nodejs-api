@@ -129,13 +129,6 @@ myReddit.getAllPosts()
   })
 })
 });
-// 3. In your views directory, create a file called `post-list.pug` 
-// and try to recreate the same output as you did with HTML. 
-// You will have access to a variable called `posts`, that will have 
-// been transmitted by the call to `render`. 
-// You will need to use the `each` functionality of Pug to do this.
-
-
 
 //exercise 5
 // old code 
