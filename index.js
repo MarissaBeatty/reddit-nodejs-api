@@ -12,6 +12,8 @@ var connection = mysql.createPool({
      connectionLimit: 10
  });
 var RedditAPI = require('./reddit');
+var myReddit = new RedditAPI(connection);  
+
 
 //example
 app.get('/', function (req, res) {
@@ -83,7 +85,7 @@ app.get('/posts', (req, res) => {
   //call getAllPosts, then start the list, then do a forEach where you 
   //display each li, then close the ul. 
 
-var myReddit = new RedditAPI(connection);  
+// var myReddit = new RedditAPI(connection);  
 
 myReddit.getAllPosts()
 .then (posts => {
@@ -131,23 +133,31 @@ app.get('/new-post', function (req, res) {
 });
 
 //exercise 6
-// app.use('body-parser') {
+//make a variable so it's easier to pass body-parser into our app.post
+var urlencodedParser = bodyParser.urlencoded({extended:false});
+
+app.post('/createPost', urlencodedParser, function (req, res) {
+//check to see if there is info in our request body, if not throw an error
+  if (!req.body) return res.sendStatus(400);
   
-// }
-
-// app.post('/createPost', function (req, res) {
-//The form will instruct the browser to make a POST request 
-//(because of the POST method), 
-//and the resource will be /createPost 
-//because of the action parameter.
-
-
-
-  
-  
-//   res.send('Hello World');
-// });
-
+//create an object to store our new post data  
+ var newPost = {};
+     newPost.url = req.body.url;
+     newPost.title = req.body.title;
+     newPost.userId = 1;
+     newPost.subredditId = 1;
+//call the function from reddit.js file   
+     myReddit.createPost(newPost)
+//redirect user to the /posts endpoint      
+       .then(newPost.results)
+          res.redirect('/posts')
+       
+//in case there is an error with the request       
+       .catch(error => {
+         console.log("Oops. Something went wrong.");
+         throw error
+        });
+ });
 
 
 /* YOU DON'T HAVE TO CHANGE ANYTHING BELOW THIS LINE :) */
