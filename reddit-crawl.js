@@ -10,13 +10,11 @@ function getSubreddits() {
 
             // Use .map to return a list of subreddit names (strings) only
             return result.data.children.map(function(subredditObject) {
-                console.log(subredditObject.data.subreddit);
-                //return newObject.data.subreddit;
+                // console.log(subredditObject.data.subreddit);
+                return subredditObject.data.subreddit;
             });
         });
 }
-
-getSubreddits();
 
 function getPostsForSubreddit(subredditName) {
     return request('https://www.reddit.com/r/' + subredditName + '.json?limit=50')
@@ -42,7 +40,6 @@ function getPostsForSubreddit(subredditName) {
             }
         );
 }
-getPostsForSubreddit();
 
 function crawl() {
     // create a connection to the DB
@@ -76,17 +73,18 @@ function crawl() {
      */
 
     // Get a list of subreddits
-   crawl();
     getSubreddits()
         .then(subredditNames => {
             subredditNames.forEach(subredditName => {
+                console.log(subredditName)
                 var subId;
-                myReddit.createSubreddit({name: subredditName})
+                myReddit.createSubreddit({name: subredditName, description: subredditName})
                     .then(subredditId => {
                         subId = subredditId;
                         return getPostsForSubreddit(subredditName);
                     })
                     .then(posts => {
+                        console.log(posts);
                         posts.forEach(post => {
                             var userIdPromise;
                             if (users[post.user]) {
@@ -115,8 +113,8 @@ function crawl() {
                     });
             });
         });
-        
-        getSubreddits();
 }
+
+crawl();
 
  
